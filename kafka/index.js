@@ -1,3 +1,5 @@
+const { KAFKA_TOPICS } = require('../constants/kafka');
+
 const activeServiceConsumer = ({
     kafkaClient,
     topic,
@@ -23,7 +25,7 @@ const activeServiceConsumer = ({
 }
 const sendKafkaMessage = ({ topic, message, kafkaProducer }) => {
     const messageJson = JSON.stringify(message);
-    
+
     return new Promise((resolve, reject) => {
         const payloads = [
             { topic: topic, message: messageJson }
@@ -40,7 +42,23 @@ const sendKafkaMessage = ({ topic, message, kafkaProducer }) => {
         });
     });
 };
+
+const sendCreateNotificationKafkaMessage = (kafkaProducer, {
+    target, type, content, href
+}) => {
+    const message = {
+        action: 'createNotification',
+        target, type, content, href
+    };
+
+    sendKafkaMessage({
+        topic: KAFKA_TOPICS.NOTIFICATION_TOPIC.REQUEST,
+        kafkaProducer,
+        message
+    })
+}
 module.exports = {
     activeServiceConsumer,
-    sendKafkaMessage
+    sendKafkaMessage,
+    sendCreateNotificationKafkaMessage
 };
