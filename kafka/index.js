@@ -1,4 +1,5 @@
 const { KAFKA_TOPICS } = require('../constants/kafka');
+const { Consumer } = require('kafka-node');
 
 const activeServiceConsumer = ({
     kafkaClient,
@@ -57,7 +58,7 @@ const sendCreateNotificationKafkaMessage = (kafkaProducer, {
         message
     })
 }
-const createTopicIfNotExists = (topic) => {
+const createTopicIfNotExists = ({ topic, client }) => {
     return new Promise((resolve, reject) => {
         client.createTopics([{
             topic: topic,
