@@ -1,5 +1,5 @@
-class BasicService{
-    async getPaginatedResults(model,query, page, limit) {
+class BasicService {
+    async getPaginatedResults({ model, query, page, limit }) {
         const skip = (page - 1) * limit;
         const getResultsPromise = model.find(query)
             .sort({ createdAt: -1 })
