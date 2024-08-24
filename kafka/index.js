@@ -57,8 +57,23 @@ const sendCreateNotificationKafkaMessage = (kafkaProducer, {
         message
     })
 }
+const createTopicIfNotExists = (topic) => {
+    return new Promise((resolve, reject) => {
+        client.createTopics([{
+            topic: topic,
+            partitions: 1,
+            replicationFactor: 1
+        }], (error, result) => {
+            if (error) {
+                return reject(error);
+            }
+            resolve(result);
+        });
+    });
+};
 module.exports = {
     activeServiceConsumer,
     sendKafkaMessage,
-    sendCreateNotificationKafkaMessage
+    sendCreateNotificationKafkaMessage,
+    createTopicIfNotExists
 };
