@@ -24,12 +24,12 @@ const activeServiceConsumer = ({
         console.error('Kafka Consumer error:', err);
     });
 }
-const sendKafkaMessage = ({ topic, message, kafkaProducer }) => {
-    const messageJson = JSON.stringify(message);
+const sendKafkaMessage = ({ topic, messages, kafkaProducer }) => {
+    const messageJson = JSON.stringify(messages);
 
     return new Promise((resolve, reject) => {
         const payloads = [
-            { topic: topic, message: messageJson }
+            { topic, messages: messageJson }
         ];
 
         kafkaProducer.send(payloads, (err, data) => {
@@ -47,7 +47,7 @@ const sendKafkaMessage = ({ topic, message, kafkaProducer }) => {
 const sendCreateNotificationKafkaMessage = (kafkaProducer, {
     target, type, content, href
 }) => {
-    const message = {
+    const messages = {
         action: 'createNotification',
         target, type, content, href
     };
@@ -55,7 +55,7 @@ const sendCreateNotificationKafkaMessage = (kafkaProducer, {
     sendKafkaMessage({
         topic: KAFKA_TOPICS.NOTIFICATION_TOPIC.REQUEST,
         kafkaProducer,
-        message
+        messages
     })
 }
 const createTopicIfNotExists = ({ topic, client }) => {
