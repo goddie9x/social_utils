@@ -1,8 +1,8 @@
 const USER_CONSTANTS = {
     ROLES: {
-        admin: 0,
-        mod: 1,
-        user: 2
+        ADMIN: 0,
+        MOD: 1,
+        USER: 2
     }
 }
 
