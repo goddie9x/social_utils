@@ -5,7 +5,7 @@ const connectToDiscoveryServer = () => {
 
     const client = new Eureka({
         instance: {
-            app: 'user-service',
+            app: process.env.APP_NAME,
             hostName: 'localhost',
             ipAddr: '127.0.0.1',
             statusPageUrl: 'http://localhost:' + port + '/info',
@@ -13,7 +13,7 @@ const connectToDiscoveryServer = () => {
                 '$': port,
                 '@enabled': true,
             },
-            vipAddress: 'user-service',
+            vipAddress: process.env.APP_NAME,
             dataCenterInfo: {
                 '@class': 'com.netflix.appinfo.InstanceInfo$DefaultDataCenterInfo',
                 name: 'MyOwn',
