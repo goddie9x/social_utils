@@ -5,9 +5,10 @@ const connectToDiscoveryServer = () => {
 
     const client = new Eureka({
         instance: {
+            instanceId:`${process.env.IP_ADDRESS}:${process.env.APP_NAME}:${port}`,
             app: process.env.APP_NAME,
-            hostName: 'localhost',
-            ipAddr: '127.0.0.1',
+            hostName: process.env.HOST_NAME,
+            ipAddr: process.env.IP_ADDRESS,
             statusPageUrl: `http://localhost:${port}/${process.env.APP_PATH}/status`,
             healthCheckUrl: `http://localhost:${port}/${process.env.APP_PATH}/health`,
             port: {
