@@ -9,8 +9,8 @@ const connectToDiscoveryServer = () => {
             app: process.env.APP_NAME,
             hostName: process.env.HOST_NAME,
             ipAddr: process.env.IP_ADDRESS,
-            statusPageUrl: `http://localhost:${port}/${process.env.APP_PATH}/status`,
-            healthCheckUrl: `http://localhost:${port}/${process.env.APP_PATH}/health`,
+            statusPageUrl: `http://localhost:${port}${process.env.APP_PATH}/status`,
+            healthCheckUrl: `http://localhost:${port}${process.env.APP_PATH}/health`,
             port: {
                 '$': port,
                 '@enabled': true,
