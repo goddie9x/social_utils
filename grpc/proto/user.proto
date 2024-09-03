@@ -4,6 +4,7 @@ package userservice;
 
 service UserService {
   rpc GetUsersWithPagination (GetUsersWithPaginationRequest) returns (GetUsersWithPaginationResponse);
+  rpc GetListUserByIds (GetListUserByIdsRequest) returns (GetListUserByIdsResponse);
   rpc Register (RegisterRequest) returns (AuthTokenResponse);
   rpc Login (LoginRequest) returns (AuthTokenResponse);
   rpc GetUserById (GetUserByIdRequest) returns (User);
@@ -54,6 +55,14 @@ message GetUsersWithPaginationResponse {
   int32 totalUsers = 3;
   int32 totalPages = 4;
   repeated User users = 5;
+}
+
+message GetListUserByIdsRequest{
+  repeated string ids = 1;
+}
+
+message GetListUserByIdsResponse{
+  repeated User users = 1;
 }
 
 message RegisterRequest {

@@ -11,6 +11,7 @@ const getUserByIdGRPCGenerate = ({ userMessages, userServiceClient }) => {
             const user = {
                 id: response.getId(),
                 username: response.getUsername(),
+                avatarUrl: response.getAvatarurl(),
             };
 
             resolve(user);
