@@ -1,4 +1,22 @@
-const userMessages = require('../../generated/user_pb');
+const getUserByIdGRPCGenerate = ({ userMessages, userServiceClient }) => {
+    return (userId) => new Promise((resolve, reject) => {
+        const userIdString = userId.toString();
+        const request = new userMessages.GetUserByIdRequest();
+        request.setId(userIdString);
+
+        userServiceClient.getUserById(request, (error, response) => {
+            if (error) {
+                return reject(error);
+            }
+            const user = {
+                id: response.getId(),
+                username: response.getUsername(),
+            };
+
+            resolve(user);
+        });
+    })
+}
 
 const formatGetUsersWithPaginationResponse = (result) => {
     const response = new userMessages.GetUsersWithPaginationResponse();
@@ -6,18 +24,18 @@ const formatGetUsersWithPaginationResponse = (result) => {
     response.setLimit(result.limit);
     response.setTotalUsers(result.totalUsers);
     response.setTotalPages(result.totalPages);
-    
+
     result.users.forEach(user => {
         const userMessage = new userMessages.User();
         userMessage.setId(user.id);
         userMessage.setUsername(user.username);
-        userMessage.setFirstname(user.firstName); 
-        userMessage.setLastname(user.lastName); 
-        userMessage.setAvatarurl(user.avatarUrl); 
-        userMessage.setCoverphotourl(user.coverPhotoUrl); 
+        userMessage.setFirstname(user.firstName);
+        userMessage.setLastname(user.lastName);
+        userMessage.setAvatarurl(user.avatarUrl);
+        userMessage.setCoverphotourl(user.coverPhotoUrl);
         userMessage.setRole(user.role);
-        userMessage.setCreatedat(user.createdAt); 
-        userMessage.setUpdatedat(user.updatedAt); 
+        userMessage.setCreatedat(user.createdAt);
+        userMessage.setUpdatedat(user.updatedAt);
         user.emails.forEach(email => {
             const emailMessage = new userMessages.Email();
             emailMessage.setEmail(email.email);
@@ -51,13 +69,13 @@ const formatUserResponse = (result) => {
     const response = new userMessages.User();
     response.setId(result.id);
     response.setUsername(result.username);
-    response.setFirstname(result.firstName); 
-    response.setLastname(result.lastName); 
-    response.setAvatarurl(result.avatarUrl); 
-    response.setCoverphotourl(result.coverPhotoUrl); 
+    response.setFirstname(result.firstName);
+    response.setLastname(result.lastName);
+    response.setAvatarurl(result.avatarUrl);
+    response.setCoverphotourl(result.coverPhotoUrl);
     response.setRole(result.role);
-    response.setCreatedat(result.createdAt); 
-    response.setUpdatedat(result.updatedAt); 
+    response.setCreatedat(result.createdAt);
+    response.setUpdatedat(result.updatedAt);
     result.emails?.forEach(email => {
         const emailMessage = new userMessages.Email();
         emailMessage.setEmail(email.email);
@@ -94,4 +112,5 @@ module.exports = {
     formatDeleteResponse,
     formatGetUsersWithPaginationResponse,
     formatUserResponse,
+    getUserByIdGRPCGenerate
 };
