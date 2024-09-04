@@ -39,39 +39,12 @@ const formatGetUsersWithPaginationResponse = (result, userMessages) => {
     response.setTotalPages(result.totalPages);
 
     result.users.forEach(user => {
-        const userMessage = new userMessages.User();
-        userMessage.setId(user.id);
-        userMessage.setUsername(user.username);
-        userMessage.setFirstname(user.firstName);
-        userMessage.setLastname(user.lastName);
-        userMessage.setAvatarurl(user.avatarUrl);
-        userMessage.setCoverphotourl(user.coverPhotoUrl);
-        userMessage.setRole(user.role);
-        userMessage.setCreatedat(user.createdAt);
-        userMessage.setUpdatedat(user.updatedAt);
-        user.emails.forEach(email => {
-            const emailMessage = new userMessages.Email();
-            emailMessage.setEmail(email.email);
-            emailMessage.setIsprimary(email.isPrimary);
-            emailMessage.setIsverified(email.isVerified);
-            userMessage.addEmails(emailMessage);
-        });
-        user.phones.forEach(phone => {
-            const phoneMessage = new userMessages.Phone();
-            phoneMessage.setNumber(phone.number);
-            phoneMessage.setIsprimary(phone.isPrimary);
-            phoneMessage.setIsverified(phone.isVerified);
-            userMessage.addPhones(phoneMessage);
-        });
-        user.followerIds.forEach(followerId => {
-            userMessage.addFollowerIds(followerId);
-        });
+        const userMessage = formatUserResponse(user,userMessages);
 
         response.addUsers(userMessage);
     });
     return response;
 };
-
 const formatGetListUserByIdsResponse = (result, userMessages) => {
     const response = new userMessages.GetListUserByIdsResponse();
 
@@ -86,21 +59,21 @@ const formatGetListUserByIdsResponse = (result, userMessages) => {
         userMessage.setRole(user.role);
         userMessage.setCreatedat(user.createdAt);
         userMessage.setUpdatedat(user.updatedAt);
-        user.emails.forEach(email => {
+        user.emails?.forEach(email => {
             const emailMessage = new userMessages.Email();
             emailMessage.setEmail(email.email);
             emailMessage.setIsprimary(email.isPrimary);
             emailMessage.setIsverified(email.isVerified);
             userMessage.addEmails(emailMessage);
         });
-        user.phones.forEach(phone => {
+        user.phones?.forEach(phone => {
             const phoneMessage = new userMessages.Phone();
             phoneMessage.setNumber(phone.number);
             phoneMessage.setIsprimary(phone.isPrimary);
             phoneMessage.setIsverified(phone.isVerified);
             userMessage.addPhones(phoneMessage);
         });
-        user.followerIds.forEach(followerId => {
+        user.followerIds?.forEach(followerId => {
             userMessage.addFollowerIds(followerId);
         });
 
