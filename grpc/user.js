@@ -1,5 +1,3 @@
-const { userMessages } = require('../../generated/user_pb');
-
 const getUserByIdGRPCGenerate = ({ userMessages, userServiceClient }) => {
     return (userId) => new Promise((resolve, reject) => {
         const userIdString = userId.toString();
@@ -10,18 +8,30 @@ const getUserByIdGRPCGenerate = ({ userMessages, userServiceClient }) => {
             if (error) {
                 return reject(error);
             }
-            const user = {
-                id: response.getId(),
-                username: response.getUsername(),
-                avatarUrl: response.getAvatarurl(),
-            };
+            const user = formatUserResponse(response, userMessages);
 
             resolve(user);
         });
     })
 }
 
-const formatGetUsersWithPaginationResponse = (result) => {
+const getListUserByIdsGRPCGenerate = ({ userMessages, userServiceClient }) => {
+    return ids => new Promise((resolve, reject) => {
+        const listStringId = ids.map(id => id.toString());
+        const request = userMessages.GetListUserByIdsRequest();
+
+        request.setIdsList(listStringId);
+
+        userServiceClient.getListUserByIds(request, (error, response) => {
+            if (error)
+                return reject(error);
+            const listUser = formatGetListUserByIdsResponse(response, userMessages);
+            resolve(listUser);
+        });
+    })
+}
+
+const formatGetUsersWithPaginationResponse = (result, userMessages) => {
     const response = new userMessages.GetUsersWithPaginationResponse();
     response.setPage(result.page);
     response.setLimit(result.limit);
@@ -62,7 +72,7 @@ const formatGetUsersWithPaginationResponse = (result) => {
     return response;
 };
 
-const formatGetListUserByIdsResponse = (result) => {
+const formatGetListUserByIdsResponse = (result, userMessages) => {
     const response = new userMessages.GetListUserByIdsResponse();
 
     result.users.forEach(user => {
@@ -99,13 +109,13 @@ const formatGetListUserByIdsResponse = (result) => {
     return response
 }
 
-const formatAuthResponse = (result) => {
+const formatAuthResponse = (result, userMessages) => {
     const response = new userMessages.AuthTokenResponse();
     response.setToken(result);
     return response;
 };
 
-const formatUserResponse = (result) => {
+const formatUserResponse = (result, userMessages) => {
     const response = new userMessages.User();
     response.setId(result.id);
     response.setUsername(result.username);
@@ -140,18 +150,19 @@ const formatDeleteResponse = () => {
     return new userMessages.Empty();
 };
 
-const formatDeleteMultipleResponse = (result) => {
+const formatDeleteMultipleResponse = (result, userMessages) => {
     const response = new userMessages.DeleteMultipleUsersResponse();
     response.setDeletedCount(result.deletedCount);
     return response;
 };
 
 module.exports = {
+    getUserByIdGRPCGenerate,
+    getListUserByIdsGRPCGenerate,
     formatAuthResponse,
     formatDeleteMultipleResponse,
     formatDeleteResponse,
     formatGetUsersWithPaginationResponse,
     formatUserResponse,
-    getUserByIdGRPCGenerate,
     formatGetListUserByIdsResponse,
 };
