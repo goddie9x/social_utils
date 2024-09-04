@@ -1,3 +1,5 @@
+const { userMessages } = require('../../generated/user_pb');
+
 const getUserByIdGRPCGenerate = ({ userMessages, userServiceClient }) => {
     return (userId) => new Promise((resolve, reject) => {
         const userIdString = userId.toString();
@@ -60,6 +62,43 @@ const formatGetUsersWithPaginationResponse = (result) => {
     return response;
 };
 
+const formatGetListUserByIdsResponse = (result) => {
+    const response = new userMessages.GetListUserByIdsResponse();
+
+    result.users.forEach(user => {
+        const userMessage = new userMessages.User();
+        userMessage.setId(user.id);
+        userMessage.setUsername(user.username);
+        userMessage.setFirstname(user.firstName);
+        userMessage.setLastname(user.lastName);
+        userMessage.setAvatarurl(user.avatarUrl);
+        userMessage.setCoverphotourl(user.coverPhotoUrl);
+        userMessage.setRole(user.role);
+        userMessage.setCreatedat(user.createdAt);
+        userMessage.setUpdatedat(user.updatedAt);
+        user.emails.forEach(email => {
+            const emailMessage = new userMessages.Email();
+            emailMessage.setEmail(email.email);
+            emailMessage.setIsprimary(email.isPrimary);
+            emailMessage.setIsverified(email.isVerified);
+            userMessage.addEmails(emailMessage);
+        });
+        user.phones.forEach(phone => {
+            const phoneMessage = new userMessages.Phone();
+            phoneMessage.setNumber(phone.number);
+            phoneMessage.setIsprimary(phone.isPrimary);
+            phoneMessage.setIsverified(phone.isVerified);
+            userMessage.addPhones(phoneMessage);
+        });
+        user.followerIds.forEach(followerId => {
+            userMessage.addFollowerIds(followerId);
+        });
+
+        response.addUsers(userMessage);
+    });
+    return response
+}
+
 const formatAuthResponse = (result) => {
     const response = new userMessages.AuthTokenResponse();
     response.setToken(result);
@@ -113,5 +152,6 @@ module.exports = {
     formatDeleteResponse,
     formatGetUsersWithPaginationResponse,
     formatUserResponse,
-    getUserByIdGRPCGenerate
+    getUserByIdGRPCGenerate,
+    formatGetListUserByIdsResponse,
 };
