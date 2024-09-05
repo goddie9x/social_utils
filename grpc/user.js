@@ -9,17 +9,17 @@ const extractUserResponse = (response) => {
         role: response.getRole(),
         createdAt: response.getCreatedat(),
         updatedAt: response.getUpdatedat(),
-        emails: response.getEmailsList().map(email => ({
+        emails: response.getEmailsList()?.map(email => ({
             email: email.getEmail(),
             isPrimary: email.getIsprimary(),
             isVerified: email.getIsverified()
         })),
-        phones: response.getPhonesList().map(phone => ({
+        phones: response.getPhonesList()?.map(phone => ({
             number: phone.getNumber(),
             isPrimary: phone.getIsprimary(),
             isVerified: phone.getIsverified()
         })),
-        followerIds: response.getFollowerIdsList()
+        followerIds: response.getFolloweridsList()
     };
     return user;
 };
@@ -77,14 +77,14 @@ const getUserByIdGRPCGenerate = ({ userMessages, userServiceClient }) => {
 const getListUserByIdsGRPCGenerate = ({ userMessages, userServiceClient }) => {
     return ids => new Promise((resolve, reject) => {
         const listStringId = ids.map(id => id.toString());
-        const request = userMessages.GetListUserByIdsRequest();
+        const request = new userMessages.GetListUserByIdsRequest();
 
         request.setIdsList(listStringId);
 
         userServiceClient.getListUserByIds(request, (error, response) => {
             if (error)
                 return reject(error);
-            const listUser = formatGetListUserByIdsResponse(response, userMessages);
+            const listUser = extractGetListUserByIdsResponse(response, userMessages);
             resolve(listUser);
         });
     })
