@@ -22,7 +22,7 @@ const connectToDiscoveryServer = () => {
             },
         },
         eureka: {
-            host: process.env.EUREKA_DISCOVERY_SERVER_HOST || 'localhost',
+            host: process.env.EUREKA_DISCOVERY_SERVER_HOST || 'discovery-server',
             port: process.env.EUREKA_DISCOVERY_SERVER_PORT || 8761,
         },
     });
