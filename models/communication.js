@@ -9,8 +9,15 @@ const CommunicationSchema = new Schema({
         required: true,
     },
     target: {
-        type: Schema.Types.ObjectId,
-        required: true,
+        targetId: {
+            type: Schema.Types.ObjectId,
+            required: true,
+        },
+        targetType: {
+            type: Number,
+            required: true,
+            enum: COMMUNICATION.TARGET_TYPE
+        },
     },
     replyTo: {
         type: Schema.Types.ObjectId,
@@ -21,13 +28,13 @@ const CommunicationSchema = new Schema({
     },
     contentType: {
         type: Number,
-        enum: Object.values(COMMUNICATION),
+        enum: Object.values(COMMUNICATION.CONTENT_TYPE),
         required: true
     },
-    hide: {
-        type: Boolean,
-        default: false
-    },
+    hide: [{
+        type: Schema.Types.ObjectId,
+        required: true,
+    }],
     removed: {
         type: Boolean,
         default: false
