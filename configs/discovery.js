@@ -34,6 +34,7 @@ const connectToDiscoveryServer = () => {
             console.log('Eureka client started');
         }
     });
+    return client;
 }
 
 module.exports = connectToDiscoveryServer;
