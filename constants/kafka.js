@@ -1,15 +1,18 @@
 const KAFKA_TOPICS = {
     USER_TOPIC: {
-        REQUEST: 'user-requests',
-        RESPONSE: 'user-responses',
-    },
-    FRIEND_TOPIC: {
-        REQUEST: 'friend-requests',
-        RESPONSE: 'friend-responses',
+        REQUEST: 'user-request',
     },
     NOTIFICATION_TOPIC: {
-        REQUEST: 'notification-requests',
-        RESPONSE: 'notification-responses',
+        REQUEST: 'notification-request',
+        RESPONSE: 'notification-response',
+    },
+    MESSAGE_TOPIC: {
+        REQUEST: 'message-request',
+        RESPONSE: 'message-response',
+    },
+    SOCKET_GATEWAY_TOPIC: {
+        REQUEST: 'socket-gateway-request',
+        RESPONSE: 'socket-gateway-response',
     },
 };
 

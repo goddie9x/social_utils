@@ -1,12 +1,21 @@
 const { KAFKA_TOPICS } = require('../constants/kafka');
-const { Consumer } = require('kafka-node');
+const kafka = require('kafka-node');
+
+const kafkaClient = new kafka.KafkaClient({ kafkaHost: process.env.KAFKA_CLIENT_HOST });
+const kafkaProducer = new kafka.Producer(kafkaClient);
+
+kafkaProducer.on('ready', () => {
+    console.log('Kafka Producer is connected and ready.');
+});
+kafkaProducer.on('error', (err) => {
+    console.error('Kafka Producer error:', err);
+});
 
 const activeServiceConsumer = ({
-    kafkaClient,
     topic,
     serviceInstance
 }) => {
-    const serviceConsumer = new Consumer(kafkaClient, [{ topic }], { autoCommit: true });
+    const serviceConsumer = new kafka.Consumer(kafkaClient, [{ topic }], { autoCommit: true });
 
     serviceConsumer.on('message', async (messages) => {
         try {
@@ -24,7 +33,8 @@ const activeServiceConsumer = ({
         console.error('Kafka Consumer error:', err);
     });
 }
-const sendKafkaMessage = ({ topic, messages, kafkaProducer }) => {
+
+const sendKafkaMessage = ({ topic, messages }) => {
     const messageJson = JSON.stringify(messages);
 
     return new Promise((resolve, reject) => {
@@ -43,8 +53,17 @@ const sendKafkaMessage = ({ topic, messages, kafkaProducer }) => {
         });
     });
 };
-
-const sendCreateNotificationKafkaMessage = (kafkaProducer, {
+const sendNewSocketMessageToSocketGateway = ({ channel, roomId, receiverId, event, message }) => {
+    const messages = {
+        action: 'handleRedisSocketMessage',
+        channel, roomId, receiverId, event, message
+    }
+    sendKafkaMessage({
+        topic: KAFKA_TOPICS.SOCKET_GATEWAY_TOPIC.REQUEST,
+        messages
+    });
+}
+const sendCreateNotificationKafkaMessage = ({
     target, type, content, href
 }) => {
     const messages = {
@@ -54,16 +73,16 @@ const sendCreateNotificationKafkaMessage = (kafkaProducer, {
 
     sendKafkaMessage({
         topic: KAFKA_TOPICS.NOTIFICATION_TOPIC.REQUEST,
-        kafkaProducer,
         messages
-    })
+    });
 }
-const createTopicIfNotExists = ({ topic, client }) => {
+
+const createTopicIfNotExists = ({ topic, client, partitions, replicationFactor }) => {
     return new Promise((resolve, reject) => {
         client.createTopics([{
             topic: topic,
-            partitions: 1,
-            replicationFactor: 1
+            partitions: partitions || 1,
+            replicationFactor: replicationFactor || 1
         }], (error, result) => {
             if (error) {
                 return reject(error);
@@ -76,5 +95,6 @@ module.exports = {
     activeServiceConsumer,
     sendKafkaMessage,
     sendCreateNotificationKafkaMessage,
-    createTopicIfNotExists
+    createTopicIfNotExists,
+    sendNewSocketMessageToSocketGateway,
 };
