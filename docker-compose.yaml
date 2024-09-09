@@ -1,0 +1,59 @@
+version: "3"
+services:
+  kafka:
+    image: bitnami/kafka
+    ports:
+      - 9092:9092
+  mongo:
+    image: mongo
+    ports:
+      - 27017:27017
+  api-gateway:
+    image: api-gateway
+    build:
+      context: ../../ApiGateway
+    ports:
+      - 8765:8765
+  blob-store-service:
+    image: blob-store-service
+    build:
+      context: ../../blob_store_service
+    ports:
+      - 6543:6543
+  discovery-server:
+    image: discovery-server
+    build:
+      context: ../../DiscoveryServer
+    ports:
+      - 8761:8761
+  friend-service:
+    image: friend-service
+    build:
+      context: ../../friend_service
+    ports:
+      - 3001:3001
+  message-service:
+    image: message-service
+    build:
+      context: ../../message_service
+    ports:
+      - 3003:3003
+  notification-service:
+    image: notificaion-service
+    build:
+      context: ../../notification_service
+    ports:
+      - 3002:3002
+  socket-gateway:
+    image: socket-gateway
+    build:
+      context: ../../socket_gateway
+    ports:
+      - 3004:3004
+  user-service:
+    image: user-service
+    build:
+      context: ../../user_service
+    ports:
+      - 3000:3000
+      - 50051:50051
