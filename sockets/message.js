@@ -15,3 +15,5 @@ const messageSocketBuilder = (io) => {
         });
     });
 }
+
+module.exports = messageSocketBuilder;
