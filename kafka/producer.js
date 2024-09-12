@@ -59,4 +59,5 @@ module.exports = {
     sendKafkaMessage,
     sendCreateNotificationKafkaMessage,
     sendNewSocketMessageToSocketGateway,
+    kafkaClient,
 };
