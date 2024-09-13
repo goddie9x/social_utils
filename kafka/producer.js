@@ -30,10 +30,10 @@ const sendKafkaMessage = ({ topic, messages }) => {
     });
 };
 
-const sendNewSocketMessageToSocketGateway = ({ channel, roomId, receiverId, event, message }) => {
+const sendNewSocketMessageToSocketGateway = ({ namespace, roomId, receiverId, event, message }) => {
     const messages = {
         action: 'handleRedisSocketMessage',
-        channel, roomId, receiverId, event, message
+        namespace, roomId, receiverId, event, message
     }
     sendKafkaMessage({
         topic: KAFKA_TOPICS.SOCKET_GATEWAY_TOPIC.REQUEST,
