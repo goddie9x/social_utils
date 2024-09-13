@@ -6,6 +6,9 @@ const CHANNELS = {
     NOTIFICATION_CHANNEL:{
         NAMESPACE:'notification',
         PREFIX:'/notifications',
+        EVENTS:{
+            NEW_NOTIFICATION:'new-notification'
+        }
     },
 };
 
