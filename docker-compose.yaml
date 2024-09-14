@@ -11,6 +11,8 @@ services:
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT
       - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
       - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+    networks:
+      - social-media-network
       
   mongo:
     image: mongo
@@ -20,6 +22,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      - social-media-network
 
   api-gateway:
     image: api-gateway
@@ -27,6 +31,20 @@ services:
       context: ../../ApiGateway
     ports:
       - 8765:8765
+    depends_on:
+      - discovery-server
+    networks:
+      - social-media-network
+
+  postgres:
+    image: postgres
+    restart: always
+    shm_size: 128mb
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Goddie97@
+    networks:
+      - social-media-network
 
   blob-store-service:
     image: blob-store-service
@@ -34,6 +52,12 @@ services:
       context: ../../blob_store_service
     ports:
       - 6543:6543
+    depends_on:
+      - postgres
+      - discovery-server
+      - api-gateway
+    networks:
+      - social-media-network
 
   discovery-server:
     image: discovery-server
@@ -41,6 +65,8 @@ services:
       context: ../../DiscoveryServer
     ports:
       - 8761:8761
+    networks:
+      - social-media-network
 
   friend-service:
     image: friend-service
@@ -48,6 +74,12 @@ services:
       context: ../../friend_service
     ports:
       - 3001:3001
+    depends_on:
+      - mongo
+      - discovery-server
+      - api-gateway
+    networks:
+      - social-media-network
 
   message-service:
     image: message-service
@@ -55,6 +87,12 @@ services:
       context: ../../message_service
     ports:
       - 3003:3003
+    depends_on:
+      - mongo
+      - discovery-server
+      - api-gateway
+    networks:
+      - social-media-network
       
   notification-service:
     image: notification-service
@@ -62,6 +100,12 @@ services:
       context: ../../notification_service
     ports:
       - 3002:3002
+    depends_on:
+      - mongo
+      - discovery-server
+      - api-gateway
+    networks:
+      - social-media-network
       
   socket-gateway:
     image: socket-gateway
@@ -69,6 +113,12 @@ services:
       context: ../../socket_gateway
     ports:
       - 3004:3004
+    depends_on:
+      - mongo
+      - discovery-server
+      - api-gateway
+    networks:
+      - social-media-network
 
   user-service:
     image: user-service
@@ -77,3 +127,13 @@ services:
     ports:
       - 3000:3000
       - 50051:50051
+    depends_on:
+      - mongo
+      - discovery-server
+      - api-gateway
+    networks:
+      - social-media-network
+
+networks:
+  social-media-network:
+    driver: bridge
