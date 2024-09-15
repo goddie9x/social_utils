@@ -20,8 +20,8 @@ services:
       - 27017:27017
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_ROOT_USERNAME: goddie9x
+      MONGO_INITDB_ROOT_PASSWORD: Goddie9x@
     networks:
       - social-media-network
 
