@@ -38,7 +38,7 @@ const createTopicIfNotExists = async (topics) => {
         });
     } catch (error) {
         console.log('create topic error');
-        console.log('list topics:',topics);
+        console.log('list topics:', topics);
         console.log(error);
     }
 };

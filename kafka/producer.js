@@ -12,32 +12,49 @@ const kafkaProducer = kafkaClient.producer({
 });
 
 const sendKafkaMessage = async ({ topic, messages }) => {
-    const messageJson = JSON.stringify(messages);
-    
     try {
-        await kafkaProducer.send({ topic, messages: messageJson })
+        await kafkaProducer.send({ topic, messages });
     } catch (error) {
-        console.log('Send kafka message error topic:'+topic, error);
+        console.log('Send kafka message error topic:' + topic, error);
     }
 };
 
-const sendNewSocketMessageToSocketGateway = ({ namespace, roomId, receiverId, event, message }) => {
-    const messages = {
-        action: 'handleRedisSocketMessage',
-        namespace, roomId, receiverId, event, message
-    }
+const sendNewMessageToSocketGateway = ({ namespace, roomId, event, message }) => {
+    const messages = [{
+        key: 'handleRedisSocketMessage',
+        value: JSON.stringify({
+            action: 'handleRedisSocketMessage',
+            namespace, roomId, event, message
+        })
+    }];
     sendKafkaMessage({
         topic: KAFKA_TOPICS.SOCKET_GATEWAY_TOPIC.REQUEST,
         messages
+    });
+}
+const sendMultipleNewMessagesToSocketGateway = ({ namespace, event, messages }) => {
+    const listKafkaMessage = messages.map(message => ({
+        key: 'handleRedisSocketMessage',
+        value: JSON.stringify({
+            action: 'handleRedisSocketMessage',
+            namespace, roomId: message.roomId, event, message
+        })
+    }));
+    sendKafkaMessage({
+        topic: KAFKA_TOPICS.SOCKET_GATEWAY_TOPIC.REQUEST,
+        messages: listKafkaMessage
     });
 }
 const sendCreateNotificationKafkaMessage = ({
     target, type, content, href
 }) => {
     const messages = [{
-        action: 'createNotification',
-        target: NOTIFICATION_CHANNEL.EVENTS.NEW_NOTIFICATION + '-' + target,
-        type, content, href
+        key: 'createNotification',
+        value: JSON.stringify({
+            action: 'createNotification',
+            target: NOTIFICATION_CHANNEL.EVENTS.NEW_NOTIFICATION + '-' + target,
+            type, content, href
+        })
     }];
 
     sendKafkaMessage({
@@ -49,6 +66,7 @@ const sendCreateNotificationKafkaMessage = ({
 module.exports = {
     sendKafkaMessage,
     sendCreateNotificationKafkaMessage,
-    sendNewSocketMessageToSocketGateway,
+    sendMultipleNewMessagesToSocketGateway,
+    sendNewMessageToSocketGateway,
     kafkaClient,
 };
