@@ -19,7 +19,7 @@ const sendKafkaMessage = async ({ topic, messages }) => {
     }
 };
 
-const sendNewMessageToSocketGateway = ({ namespace, roomId, event, message }) => {
+const sendNewMessageToSocketGateway = async ({ namespace, roomId, event, message }) => {
     const messages = [{
         key: 'handleRedisSocketMessage',
         value: JSON.stringify({
@@ -27,12 +27,12 @@ const sendNewMessageToSocketGateway = ({ namespace, roomId, event, message }) =>
             namespace, roomId, event, message
         })
     }];
-    sendKafkaMessage({
+    await sendKafkaMessage({
         topic: KAFKA_TOPICS.SOCKET_GATEWAY_TOPIC.REQUEST,
         messages
     });
 }
-const sendMultipleNewMessagesToSocketGateway = ({ namespace, event, messages }) => {
+const sendMultipleNewMessagesToSocketGateway = async ({ namespace, event, messages }) => {
     const listKafkaMessage = messages.map(message => ({
         key: 'handleRedisSocketMessage',
         value: JSON.stringify({
@@ -40,12 +40,12 @@ const sendMultipleNewMessagesToSocketGateway = ({ namespace, event, messages }) 
             namespace, roomId: message.roomId, event, message
         })
     }));
-    sendKafkaMessage({
+    await sendKafkaMessage({
         topic: KAFKA_TOPICS.SOCKET_GATEWAY_TOPIC.REQUEST,
         messages: listKafkaMessage
     });
 }
-const sendCreateNotificationKafkaMessage = ({
+const sendCreateNotificationKafkaMessage = async ({
     target, type, content, href
 }) => {
     const messages = [{
@@ -57,7 +57,7 @@ const sendCreateNotificationKafkaMessage = ({
         })
     }];
 
-    sendKafkaMessage({
+    await sendKafkaMessage({
         topic: KAFKA_TOPICS.NOTIFICATION_TOPIC.REQUEST,
         messages
     });
