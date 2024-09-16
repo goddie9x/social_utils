@@ -2,40 +2,38 @@ const { KAFKA_TOPICS } = require('../constants/kafka');
 const { NOTIFICATION_CHANNEL } = require('../constants/socketChannel');
 const { Kafka, Partitioners } = require('kafkajs');
 
+const kafkaClient = new Kafka({
+    clientId: process.env.APP_NAME,
+    brokers: [process.env.KAFKA_CLIENT_HOST],
+});
 class KafkaProducer {
-    static instance;
-    producer;
-    isConnected = false;
-    constructor() {
-        const kafkaClient = new Kafka({
-            clientId: process.env.APP_NAME,
-            brokers: [process.env.KAFKA_CLIENT_HOST],
-        });
-        this._producer = kafkaClient.producer();
-    }
+    static producer = kafkaClient.producer();
+    static isConnected = false;
+    
     static async getInstance() {
         try {
-            if (!KafkaProducer.instance) {
-                KafkaProducer.instance = new KafkaProducer();
+            if (!KafkaProducer.producer) {
+                KafkaProducer.producer = new KafkaProducer();
             }
-            if (!KafkaProducer.instance.isConnected) {
-                await KafkaProducer.instance.producer.connect({
+            if (!KafkaProducer.isConnected) {
+                await KafkaProducer.producer.connect({
                     allowAutoTopicCreation: false,
                     createPartitioner: Partitioners.DefaultPartitioner
                 });
-                KafkaProducer.instance.isConnected = true;
+                KafkaProducer.isConnected = true;
             }
-            return KafkaProducer.instance;
+            return KafkaProducer.producer;
         } catch (error) {
-            KafkaProducer.instance.isConnected = false;
+            KafkaProducer.isConnected = false;
             console.log(error);
+            return null;
         }
     }
 }
 
 const sendKafkaMessage = async ({ topic, messages }) => {
     try {
-        this.kafkaClient = await KafkaProducer.getInstance();
+        const kafkaProducer = await KafkaProducer.getInstance();
         await kafkaProducer.send({ topic, messages });
     } catch (error) {
         console.log('Send kafka message error topic:' + topic, error);
