@@ -20,7 +20,7 @@ const sendKafkaMessage = async ({ topic, messages }) => {
     try {
         await kafkaProducer.send(payloads)
     } catch (error) {
-        console.log('Send kafka message error', error);
+        console.log('Send kafka message error topic:'+topic, error);
     }
 };
 
@@ -48,7 +48,6 @@ const sendCreateNotificationKafkaMessage = ({
         messages
     });
 }
-
 
 module.exports = {
     sendKafkaMessage,
