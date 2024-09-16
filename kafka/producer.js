@@ -1,33 +1,27 @@
-const kafka = require('kafka-node');
 const { KAFKA_TOPICS } = require('../constants/kafka');
+const { NOTIFICATION_CHANNEL } = require('../constants/socketChannel');
+const { Kafka, Partitioners } = require('kafkajs');
 
-const kafkaClient = new kafka.KafkaClient({ kafkaHost: process.env.KAFKA_CLIENT_HOST });
-const kafkaProducer = new kafka.Producer(kafkaClient);
+const kafkaClient = new Kafka({
+    clientId: process.env.APP_NAME,
+    brokers: [process.env.KAFKA_CLIENT_HOST],
+});
+const kafkaProducer = kafkaClient.producer({
+    allowAutoTopicCreation: true,
+    createPartitioner: Partitioners.DefaultPartitioner
+});
 
-kafkaProducer.on('ready', () => {
-    console.log('Kafka Producer is connected and ready.');
-});
-kafkaProducer.on('error', (err) => {
-    console.error('Kafka Producer error:', err);
-});
-const sendKafkaMessage = ({ topic, messages }) => {
+const sendKafkaMessage = async ({ topic, messages }) => {
     const messageJson = JSON.stringify(messages);
 
-    return new Promise((resolve, reject) => {
-        const payloads = [
-            { topic, messages: messageJson }
-        ];
-
-        kafkaProducer.send(payloads, (err, data) => {
-            if (err) {
-                console.error('Error sending message:', err);
-                reject(err);
-            } else {
-                console.log('Message sent successfully:', data);
-                resolve(data);
-            }
-        });
-    });
+    const payloads = [
+        { topic, messages: messageJson }
+    ];
+    try {
+        await kafkaProducer.send(payloads)
+    } catch (error) {
+        console.log('Send kafka message error', error);
+    }
 };
 
 const sendNewSocketMessageToSocketGateway = ({ namespace, roomId, receiverId, event, message }) => {
@@ -45,7 +39,8 @@ const sendCreateNotificationKafkaMessage = ({
 }) => {
     const messages = {
         action: 'createNotification',
-        target, type, content, href
+        target: NOTIFICATION_CHANNEL.EVENTS.NEW_NOTIFICATION + '-' + target,
+        type, content, href
     };
 
     sendKafkaMessage({
