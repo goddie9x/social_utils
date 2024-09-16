@@ -2,17 +2,40 @@ const { KAFKA_TOPICS } = require('../constants/kafka');
 const { NOTIFICATION_CHANNEL } = require('../constants/socketChannel');
 const { Kafka, Partitioners } = require('kafkajs');
 
-const kafkaClient = new Kafka({
-    clientId: process.env.APP_NAME,
-    brokers: [process.env.KAFKA_CLIENT_HOST],
-});
-const kafkaProducer = kafkaClient.producer({
-    allowAutoTopicCreation: false,
-    createPartitioner: Partitioners.DefaultPartitioner
-});
+class KafkaProducer {
+    static instance;
+    producer;
+    isConnected = false;
+    constructor() {
+        const kafkaClient = new Kafka({
+            clientId: process.env.APP_NAME,
+            brokers: [process.env.KAFKA_CLIENT_HOST],
+        });
+        this._producer = kafkaClient.producer();
+    }
+    static async getInstance() {
+        try {
+            if (!KafkaProducer.instance) {
+                KafkaProducer.instance = new KafkaProducer();
+            }
+            if (!KafkaProducer.instance.isConnected) {
+                await KafkaProducer.instance.producer.connect({
+                    allowAutoTopicCreation: false,
+                    createPartitioner: Partitioners.DefaultPartitioner
+                });
+                KafkaProducer.instance.isConnected = true;
+            }
+            return KafkaProducer.instance;
+        } catch (error) {
+            KafkaProducer.instance.isConnected = false;
+            console.log(error);
+        }
+    }
+}
 
 const sendKafkaMessage = async ({ topic, messages }) => {
     try {
+        this.kafkaClient = await KafkaProducer.getInstance();
         await kafkaProducer.send({ topic, messages });
     } catch (error) {
         console.log('Send kafka message error topic:' + topic, error);
