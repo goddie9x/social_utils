@@ -7,7 +7,7 @@ const kafkaClient = new Kafka({
     brokers: [process.env.KAFKA_CLIENT_HOST],
 });
 const kafkaProducer = kafkaClient.producer({
-    allowAutoTopicCreation: true,
+    allowAutoTopicCreation: false,
     createPartitioner: Partitioners.DefaultPartitioner
 });
 

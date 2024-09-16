@@ -14,7 +14,7 @@ const activeServiceConsumer = async ({
         await serviceConsumer.connect();
         await serviceConsumer.subscribe({ topic, fromBeginning: false });
         await serviceConsumer.run({
-            eachMessage: async({ message })=>{
+            eachMessage: async ({ message }) => {
                 try {
                     const { action, ...data } = JSON.parse(message.value);
                     if (typeof serviceInstance[action] === 'function') {
@@ -29,6 +29,20 @@ const activeServiceConsumer = async ({
         console.log(error);
     }
 }
+
+const createTopicIfNotExists = async (topics) => {
+    try {
+        const admin = kafkaClient.admin();
+        await admin.createTopics({
+            topics
+        });
+    } catch (error) {
+        console.log('create topic error');
+        console.log('list topics:',topics);
+        console.log(error);
+    }
+};
 module.exports = {
     activeServiceConsumer,
+    createTopicIfNotExists,
 };
