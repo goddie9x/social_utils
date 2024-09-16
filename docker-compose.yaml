@@ -21,7 +21,7 @@ services:
     restart: always
     environment:
       MONGO_INITDB_ROOT_USERNAME: goddie9x
-      MONGO_INITDB_ROOT_PASSWORD: Goddie9x@
+      MONGO_INITDB_ROOT_PASSWORD: thisIsJustTheTestPassword123
     networks:
       - social-media-network
 

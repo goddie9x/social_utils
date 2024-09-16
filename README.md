@@ -185,3 +185,15 @@ Help us easily run containers of many services, just locate the terminal in the 
 
 > [!IMPORTANT]
 > We also have a convention here that whenever you created a service that you must add Docker file and add the service docker information into [Docker compose file](./docker-compose.yaml)
+## Init mongo database and user
+- [File init mongo database and user](./init-mongo.js)
+> [!IMPORTANT]
+> Just for testing or development environment
+> Copy these code then run it in mongo cli
+Init the database and user for all services in development environment
+## Pull utils request for all service
+- [File bat execute pull request for all service](./pull_request_for_multipath.bat)
+Help us pull newest version of utils for other service which are using utils
+> [!IMPORTANT]
+> Just using for window and for environment environment 
+> Easy run it by double click or just run it in cmd by: type `./pull_request_for_multipath.bat`
