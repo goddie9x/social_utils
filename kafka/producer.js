@@ -13,12 +13,9 @@ const kafkaProducer = kafkaClient.producer({
 
 const sendKafkaMessage = async ({ topic, messages }) => {
     const messageJson = JSON.stringify(messages);
-
-    const payloads = [
-        { topic, messages: messageJson }
-    ];
+    
     try {
-        await kafkaProducer.send(payloads)
+        await kafkaProducer.send({ topic, messages: messageJson })
     } catch (error) {
         console.log('Send kafka message error topic:'+topic, error);
     }
@@ -37,11 +34,11 @@ const sendNewSocketMessageToSocketGateway = ({ namespace, roomId, receiverId, ev
 const sendCreateNotificationKafkaMessage = ({
     target, type, content, href
 }) => {
-    const messages = {
+    const messages = [{
         action: 'createNotification',
         target: NOTIFICATION_CHANNEL.EVENTS.NEW_NOTIFICATION + '-' + target,
         type, content, href
-    };
+    }];
 
     sendKafkaMessage({
         topic: KAFKA_TOPICS.NOTIFICATION_TOPIC.REQUEST,
