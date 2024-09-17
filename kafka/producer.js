@@ -42,9 +42,9 @@ const sendKafkaMessage = async ({ topic, messages }) => {
 
 const sendNewMessageToSocketGateway = async ({ namespace, roomId, event, message }) => {
     const messages = [{
-        key: 'handleRedisSocketMessage',
+        key: 'handleSocketMessage',
         value: JSON.stringify({
-            action: 'handleRedisSocketMessage',
+            action: 'handleSocketMessage',
             namespace, roomId, event, message
         })
     }];
@@ -55,9 +55,9 @@ const sendNewMessageToSocketGateway = async ({ namespace, roomId, event, message
 }
 const sendMultipleNewMessagesToSocketGateway = async ({ namespace, event, messages }) => {
     const listKafkaMessage = messages.map(message => ({
-        key: 'handleRedisSocketMessage',
+        key: 'handleSocketMessage',
         value: JSON.stringify({
-            action: 'handleRedisSocketMessage',
+            action: 'handleSocketMessage',
             namespace, roomId: message.roomId, event, message
         })
     }));
@@ -73,7 +73,7 @@ const sendCreateNotificationKafkaMessage = async ({
         key: 'createNotification',
         value: JSON.stringify({
             action: 'createNotification',
-            target: NOTIFICATION_CHANNEL.EVENTS.NEW_NOTIFICATION + '-' + target,
+            target: target,
             type, content, href
         })
     }];

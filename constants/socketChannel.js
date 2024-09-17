@@ -1,11 +1,12 @@
 const CHANNELS = {
     MESSAGE_CHANNEL:{
         NAMESPACE:'message',
-        PREFIX:'/messages',
+        EVENTS:{
+            NEW_MESSAGE:'new-message'
+        }
     },
     NOTIFICATION_CHANNEL:{
         NAMESPACE:'notification',
-        PREFIX:'/notifications',
         EVENTS:{
             NEW_NOTIFICATION:'new-notification'
         }
