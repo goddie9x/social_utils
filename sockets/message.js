@@ -11,10 +11,10 @@ const messageSocketBuilder = (io) => {
                 const currentUser = socket.currentUser;
 
                 console.log(`User connected to ${MESSAGE_CHANNEL.NAMESPACE}: ${currentUser.username}`);
-                socket.join(MESSAGE_CHANNEL.EVENTS.NEW_MESSAGE + '-' + currentUser.userId);
+                socket.join(MESSAGE_CHANNEL.EVENTS.NEW_MESSAGE + currentUser.userId);
                 socket.on('disconnect', () => {
                     console.log(`User disconnected from ${namespace}: ${socket.currentUser.username}`);
-                    socket.leave(MESSAGE_CHANNEL.EVENTS.NEW_MESSAGE + '-' + currentUser.userId);
+                    socket.leave(MESSAGE_CHANNEL.EVENTS.NEW_MESSAGE + currentUser.userId);
                 });
             });
         }

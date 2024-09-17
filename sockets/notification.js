@@ -12,11 +12,11 @@ const notificationSocketBuilder = (io) => {
                 const currentUser = socket.currentUser;
 
                 console.log(`User connected to ${NOTIFICATION_CHANNEL.NAMESPACE}: ${currentUser.username}`);
-                socket.join(NOTIFICATION_CHANNEL.EVENTS.NEW_NOTIFICATION + '-' + currentUser.userId);
+                socket.join(NOTIFICATION_CHANNEL.EVENTS.NEW_NOTIFICATION + currentUser.userId);
 
                 socket.on('disconnect', () => {
                     console.log(`User disconnected from ${NOTIFICATION_CHANNEL.NAMESPACE}: ${socket.currentUser.username}`);
-                    socket.leave(NOTIFICATION_CHANNEL.EVENTS.NEW_NOTIFICATION + '-' + currentUser.userId);
+                    socket.leave(NOTIFICATION_CHANNEL.EVENTS.NEW_NOTIFICATION + currentUser.userId);
                 });
             });
         }
