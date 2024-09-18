@@ -1,4 +1,10 @@
 const CHANNELS = {
+    COMMON: {
+        EVENTS: {
+            JOIN_ROOM: 'join-room',
+            LEAVE_ROOM: 'leave-room',
+        },
+    },
     MESSAGE_CHANNEL: {
         NAMESPACE: 'message',
         EVENTS: {
