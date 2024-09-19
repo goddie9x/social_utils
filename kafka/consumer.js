@@ -29,7 +29,33 @@ const activeServiceConsumer = async ({
         console.log(error);
     }
 }
-
+const activeMultipleServiceConsumer = async ({
+    topic,
+    serviceInstances
+}) => {
+    try {
+        const amountService = serviceInstances.length;
+        const serviceConsumer = kafkaClient.consumer({ groupId: process.env.APP_NAME, autoCommit: true })
+        await serviceConsumer.connect();
+        await serviceConsumer.subscribe({ topic, fromBeginning: false });
+        await serviceConsumer.run({
+            eachMessage: async ({ message }) => {
+                try {
+                    const { action, ...data } = JSON.parse(message.value);
+                    for (let i = 0; i < amountService; i++) {
+                        if (typeof serviceInstances[i][action] === 'function') {
+                            return await serviceInstances[i][action](data);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error processing Kafka message:', error);
+                }
+            }
+        });
+    } catch (error) {
+        console.log(error);
+    }
+}
 const createTopicIfNotExists = async (topics) => {
     try {
         const admin = kafkaClient.admin();
@@ -45,4 +71,5 @@ const createTopicIfNotExists = async (topics) => {
 module.exports = {
     activeServiceConsumer,
     createTopicIfNotExists,
+    activeMultipleServiceConsumer,
 };
