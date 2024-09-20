@@ -10,6 +10,9 @@ function setupDatabaseAndUser(dbName) {
         try {
             db.createCollection('dummy');
             print(`Created dummy collection in ${dbName}`);
+            // Remove the dummy collection after creating the database
+            db.dummy.drop();
+            print(`Removed dummy collection from ${dbName}`);
         } catch (error) {
             print(`Failed to create dummy collection in ${dbName}: ${error.message}`);
         }
