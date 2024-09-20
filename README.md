@@ -177,7 +177,12 @@ Contains basic structure or schema can be reuse or extends by some services
 Defines the method for get result with pagination getPaginatedResults
 
 ## Sockets
-Defines utils as socket builder receive `io` and then mapping it with specific handler, usually used by socket server but keep that in [Util directory](#utils) as a convention for client when communicating with socket server
+- [Socket directory](./sockets)
+Define utils as socket builder receive `io` and then mapping it with specific handler, usually used by socket server but keep that in [Util directory](#utils) as a convention for client when communicating with socket server
+
+## Validate
+- [Validate directory](./validate)
+Define utils using for validating
 
 ## Docker compose
 [Docker compose file](./docker-compose.yaml)
