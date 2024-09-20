@@ -9,7 +9,10 @@ const COMMUNICATION = {
         COMMENT: 1,
         CHAT: 2,
         GROUP_CHAT: 3,
-    }
+    },
+    GROUP_CHAT: {
+        MIN_AMOUNT_MEMBER: 2
+    },
 }
 
 module.exports = COMMUNICATION
