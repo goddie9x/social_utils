@@ -24,6 +24,13 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: thisIsJustTheTestPassword123
     networks:
       - social-media-network
+  oracle:
+    image: container-registry.oracle.com/database/express:latest
+    environment:
+      - ORACLE_PWD=thisIsJustTheTestPassword123
+      - ORACLE_USER=goddie9x
+    ports:
+      - "1521:1521" 
 
   api-gateway:
     image: api-gateway
