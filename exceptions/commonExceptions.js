@@ -9,7 +9,7 @@ class CommonException extends Error {
 
 class IncorrectPermission extends CommonException {
     constructor(message, statusCode, errorCode) {
-        super(message || 'Do not have permission', statusCode || 401, errorCode || 401);
+        super(message || 'Do not have permission', statusCode || 403, errorCode || 403);
     }
 }
 
@@ -26,7 +26,7 @@ class TargetNotExistException extends CommonException {
 
 class TargetAlreadyExistException extends CommonException {
     constructor(message, statusCode, errorCode) {
-        super(message || 'Target already exist', statusCode || 405, errorCode || 405);
+        super(message || 'Target already exist', statusCode || 409, errorCode || 409);
     }
 }
 
