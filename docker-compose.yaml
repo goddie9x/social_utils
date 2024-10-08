@@ -31,6 +31,8 @@ services:
       - ORACLE_USER=goddie9x
     ports:
       - "1521:1521" 
+    networks:
+    - social-media-network
 
   api-gateway:
     image: api-gateway
@@ -49,7 +51,19 @@ services:
     shm_size: 128mb
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=Goddie97@
+      - POSTGRES_PASSWORD=thisIsJustTheTestPassword123
+    networks:
+      - social-media-network
+
+  redis:
+    image: redis
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - 6379:6379
+    volumes:
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_DISABLE_DEFAULT_USER="true"
     networks:
       - social-media-network
 
@@ -65,7 +79,18 @@ services:
       - api-gateway
     networks:
       - social-media-network
-
+  post-service:
+    image: post-service
+    build:
+      context: ../../post_service
+    ports:
+      - 3005:3005
+    depends_on:
+      - oracle
+      - discovery-server
+      - api-gateway
+    networks:
+      - social-media-network
   discovery-server:
     image: discovery-server
     build:
