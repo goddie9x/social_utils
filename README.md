@@ -20,8 +20,10 @@ When you have some methods in your instance of a class which lost `this` context
 ## Configs
 - [configs directory](./configs)
 Contains config utils which you can use that for `default config` and save time for you
-
-### discovery config
+### Elastic Search config
+- [elasticSearch.js](./configs/elasticSearch.js)
+Will be apply to elastic search config
+### Discovery config
 - [discovery.js](./configs/discovery.js)
 Contains function connectToDiscoveryServer which contains config to connect to `discovery server` which running with `eureka`
 > [!TIP]
@@ -79,6 +81,9 @@ BasicController has methods response for handle error and return corresponding e
 > [!TIP]
 > You should define corresponding Exception extend CommonException and throw it when exception happening
 
+## Elastics
+- [elastics directory](./elastics)
+Contains util for elastic search
 ## Eureka
 - [eureka directory](./eureka)
 Contains default controller and route response current service health and status for our eureka discovery server
@@ -167,7 +172,9 @@ Contains middleware utils can be using for multiple service, or can be conventio
 ## Models
 - [models directory](./models)
 Contains basic structure or schema can be reuse in some services
-
+## Redis
+- [redis directory](./redis)
+Configuration connect to redis (single instance)
 ## Services
 - [services directory](./services)
 Contains basic structure or schema can be reuse or extends by some services
