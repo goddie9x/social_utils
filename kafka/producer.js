@@ -1,5 +1,4 @@
 const { KAFKA_TOPICS } = require('../constants/kafka');
-const { NOTIFICATION_CHANNEL } = require('../constants/socketChannel');
 const { Kafka, Partitioners } = require('kafkajs');
 
 const kafkaClient = new Kafka({

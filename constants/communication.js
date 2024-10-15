@@ -5,14 +5,12 @@ const COMMUNICATION = {
         VIDEO: 2,
     },
     TARGET_TYPE: {
-        POST: 0,
-        COMMENT: 1,
-        CHAT: 2,
-        GROUP_CHAT: 3,
+        CHAT: 0,
+        GROUP_CHAT: 1,
     },
     GROUP_CHAT: {
         MIN_AMOUNT_MEMBER: 2
     },
-}
+};
 
-module.exports = COMMUNICATION
+module.exports = COMMUNICATION;

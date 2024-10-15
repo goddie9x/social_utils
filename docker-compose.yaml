@@ -167,7 +167,19 @@ services:
       - api-gateway
     networks:
       - social-media-network
-
+  comment-service:
+    image: comment-service
+    build:
+      context: ../../comment_service
+    ports:
+      - 3006:3006
+    depends_on:
+      - mongo
+      - discovery-server
+      - api-gateway
+    networks:
+      - social-media-network
+    
   user-service:
     image: user-service
     build:
