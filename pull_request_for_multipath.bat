@@ -5,7 +5,7 @@ rem Save the original directory
 set original_dir=%cd%
 
 rem Set directories for services
-set dirs=..\..\friend_service\utils ..\..\message_service\utils ..\..\notification_service\utils ..\..\socket_gateway\utils ..\..\user_service\utils
+set dirs=..\..\comment_service\utils ..\..\friend_service\utils ..\..\message_service\utils ..\..\notification_service\utils ..\..\socket_gateway\utils ..\..\user_service\utils
 
 rem Default command for git pull
 set cmd=git pull origin main
