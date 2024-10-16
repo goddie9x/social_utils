@@ -179,7 +179,18 @@ services:
       - api-gateway
     networks:
       - social-media-network
-    
+  group-service:
+    image: group-service
+    build:
+      context: ../../group_service
+    ports:
+      - 3008:3008
+    depends_on:
+      - mongo
+      - discovery-server
+      - api-gateway
+    networks:
+      - social-media-network
   user-service:
     image: user-service
     build:

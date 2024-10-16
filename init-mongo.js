@@ -50,7 +50,7 @@ function setupDatabaseAndUser(dbName) {
     }
 }
 
-const databases = ['friend', 'message', 'notification', 'user','comment','reaction'];
+const databases = ['friend', 'message', 'notification', 'user','comment','reaction','group','page'];
 print("Starting database and user setup...");
 databases.forEach(setupDatabaseAndUser);
 
