@@ -3,7 +3,7 @@ setlocal
 
 set original_dir=%cd%
 
-set dirs=..\..\comment_service\utils ..\..\friend_service\utils ..\..\message_service\utils ..\..\notification_service\utils ..\..\socket_gateway\utils ..\..\user_service\utils
+set dirs=..\..\comment_service\utils ..\..\friend_service\utils ..\..\message_service\utils ..\..\notification_service\utils ..\..\socket_gateway\utils ..\..\user_service\utils ..\..\reaction_service\utils ..\..\group_service\utils ..\..\page_service\utils
 
 set cmd=git pull origin main
 
