@@ -83,6 +83,26 @@ services:
       - 5601:5601
     networks:
       - social-media-network
+  discovery-server:
+    image: discovery-server
+    build:
+      context: ../../DiscoveryServer
+    ports:
+      - 8761:8761
+    networks:
+      - social-media-network
+  socket-gateway:
+    image: socket-gateway
+    build:
+      context: ../../socket_gateway
+    ports:
+      - 3004:3004
+    depends_on:
+      - mongo
+      - discovery-server
+      - api-gateway
+    networks:
+      - social-media-network
   blob-store-service:
     image: blob-store-service
     build:
@@ -107,15 +127,6 @@ services:
       - api-gateway
     networks:
       - social-media-network
-  discovery-server:
-    image: discovery-server
-    build:
-      context: ../../DiscoveryServer
-    ports:
-      - 8761:8761
-    networks:
-      - social-media-network
-
   friend-service:
     image: friend-service
     build:
@@ -128,7 +139,6 @@ services:
       - api-gateway
     networks:
       - social-media-network
-
   message-service:
     image: message-service
     build:
@@ -141,26 +151,12 @@ services:
       - api-gateway
     networks:
       - social-media-network
-      
   notification-service:
     image: notification-service
     build:
       context: ../../notification_service
     ports:
       - 3002:3002
-    depends_on:
-      - mongo
-      - discovery-server
-      - api-gateway
-    networks:
-      - social-media-network
-      
-  socket-gateway:
-    image: socket-gateway
-    build:
-      context: ../../socket_gateway
-    ports:
-      - 3004:3004
     depends_on:
       - mongo
       - discovery-server
@@ -185,6 +181,18 @@ services:
       context: ../../group_service
     ports:
       - 3008:3008
+    depends_on:
+      - mongo
+      - discovery-server
+      - api-gateway
+    networks:
+      - social-media-network
+  page-service:
+    image: page-service
+    build:
+      context: ../../page_service
+    ports:
+      - 3009:3009
     depends_on:
       - mongo
       - discovery-server
