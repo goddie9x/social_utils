@@ -1,227 +1,310 @@
+# Docker Compose for the 13-microservice social platform.
+#
+# Usage:
+#   1. Copy .env.example to .env and set real secrets (JWT_SECRET,
+#      INTERNAL_HMAC_SECRET, DB passwords). The defaults below are for
+#      local development only.
+#   2. Run: docker compose up --build
+#
+# Repo layout: this file lives in social_utils/. Each service is a sibling
+# directory (../social_user_service, ../social_api_gateway, ...).
+
 services:
+  # ---------------------------------------------------------------- infra
   kafka:
-    image: bitnami/kafka
+    image: bitnami/kafka:latest
     ports:
-      - 9092:9092
+      - "9092:9092"
     environment:
-      - KAFKA_CFG_NODE_ID=0
-      - KAFKA_CFG_PROCESS_ROLES=controller,broker
-      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://localhost:9092,INTERNAL://kafka:29092
-      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,INTERNAL://:29092
-      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT
-      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
-      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      KAFKA_CFG_NODE_ID: 0
+      KAFKA_CFG_PROCESS_ROLES: controller,broker
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,INTERNAL://kafka:29092
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,INTERNAL://:29092
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 0@kafka:9093
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
     networks:
       - social-media-network
-      
+
   mongo:
-    image: mongo
+    image: mongo:7
     ports:
-      - 27017:27017
+      - "27017:27017"
     restart: always
     environment:
-      MONGO_INITDB_ROOT_USERNAME: goddie9x
-      MONGO_INITDB_ROOT_PASSWORD: thisIsJustTheTestPassword123
-    networks:
-      - social-media-network
-  oracle:
-    image: container-registry.oracle.com/database/express:latest
-    environment:
-      - ORACLE_PWD=thisIsJustTheTestPassword123
-      - ORACLE_USER=goddie9x
-    ports:
-      - "1521:1521" 
-    networks:
-    - social-media-network
-
-  api-gateway:
-    image: api-gateway
-    build:
-      context: ../../ApiGateway
-    ports:
-      - 8765:8765
-    depends_on:
-      - discovery-server
-    networks:
-      - social-media-network
-
-  postgres:
-    image: postgres
-    restart: always
-    shm_size: 128mb
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=thisIsJustTheTestPassword123
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-goddie9x}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-change-me-in-prod}
+      MONGO_APP_USER: ${MONGO_APP_USER:-goddie9x}
+      MONGO_APP_PASSWORD: ${MONGO_APP_PASSWORD:-change-me-in-prod}
+    volumes:
+      - ./init-mongo.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
     networks:
       - social-media-network
 
   redis:
-    image: redis
-    command: redis-server /usr/local/etc/redis/redis.conf
+    image: redis:7-alpine
     ports:
-      - 6379:6379
-    volumes:
-      - ./redis.conf:/usr/local/etc/redis/redis.conf
-    environment:
-      - REDIS_DISABLE_DEFAULT_USER="true"
+      - "6379:6379"
+    # Password via command line instead of a mounted redis.conf with a
+    # hardcoded secret.
+    command: redis-server --requirepass ${REDIS_PASSWORD:-change-me-in-prod}
     networks:
       - social-media-network
+
+  postgres:
+    image: postgres:16-alpine
+    restart: always
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-in-prod}
+    networks:
+      - social-media-network
+
+  oracle:
+    image: container-registry.oracle.com/database/express:latest
+    environment:
+      ORACLE_PWD: ${ORACLE_PASSWORD:-change-me-in-prod}
+    ports:
+      - "1521:1521"
+    networks:
+      - social-media-network
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.15.2
     ports:
-      - 9200:9200
-      - 9300:9300
+      - "9200:9200"
+      - "9300:9300"
     environment:
-      - discovery.type=single-node
-      - ELASTIC_PASSWORD=thisIsJustTheTestPassword123
-      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      discovery.type: single-node
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-change-me-in-prod}
+      ES_JAVA_OPTS: -Xms1g -Xmx1g
     networks:
       - social-media-network
+
   kibana:
     image: docker.elastic.co/kibana/kibana:8.15.2
     ports:
-      - 5601:5601
+      - "5601:5601"
     networks:
       - social-media-network
+
+  # ------------------------------------------------------------- discovery
   discovery-server:
-    image: discovery-server
     build:
-      context: ../../DiscoveryServer
+      context: ../social_discovery_server
     ports:
-      - 8761:8761
+      - "8761:8761"
     networks:
       - social-media-network
-  socket-gateway:
-    image: socket-gateway
+
+  # --------------------------------------------------------------- gateway
+  api-gateway:
     build:
-      context: ../../socket_gateway
+      context: ../social_api_gateway
     ports:
-      - 3004:3004
+      - "8765:8765"
+    depends_on:
+      - discovery-server
+      - redis
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me}
+      INTERNAL_HMAC_SECRET: ${INTERNAL_HMAC_SECRET:-dev-only-change-me}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-change-me-in-prod}
+    networks:
+      - social-media-network
+
+  # ------------------------------------------------------------------ apps
+  user-service:
+    build:
+      context: ../social_user_service
+    ports:
+      - "3000:3000"
+      - "50051:50051"
     depends_on:
       - mongo
       - discovery-server
       - api-gateway
+    environment:
+      INTERNAL_HMAC_SECRET: ${INTERNAL_HMAC_SECRET:-dev-only-change-me}
+      KAFKA_CLIENT_HOST: kafka
+      EUREKA_HOST: discovery-server
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me}
+      JWT_REFRESH_TOKEN_SECRET: ${JWT_REFRESH_TOKEN_SECRET:-dev-only-change-me}
+      MONGODB_URI: mongodb://${MONGO_APP_USER:-goddie9x}:${MONGO_APP_PASSWORD:-change-me-in-prod}@mongo:27017/user?authSource=user
     networks:
       - social-media-network
-  blob-store-service:
-    image: blob-store-service
+
+  friend-service:
     build:
-      context: ../../blob_store_service
+      context: ../social_friend_service
     ports:
-      - 6543:6543
+      - "3001:3001"
     depends_on:
-      - postgres
+      - mongo
       - discovery-server
       - api-gateway
+    environment:
+      INTERNAL_HMAC_SECRET: ${INTERNAL_HMAC_SECRET:-dev-only-change-me}
+      KAFKA_CLIENT_HOST: kafka
+      EUREKA_HOST: discovery-server
+      MONGODB_URI: mongodb://${MONGO_APP_USER:-goddie9x}:${MONGO_APP_PASSWORD:-change-me-in-prod}@mongo:27017/friend?authSource=friend
     networks:
       - social-media-network
-  post-service:
-    image: post-service
+
+  notification-service:
     build:
-      context: ../../post_service
+      context: ../social_notification_service
     ports:
-      - 3005:3005
+      - "3002:3002"
+    depends_on:
+      - mongo
+      - discovery-server
+      - api-gateway
+    environment:
+      INTERNAL_HMAC_SECRET: ${INTERNAL_HMAC_SECRET:-dev-only-change-me}
+      KAFKA_CLIENT_HOST: kafka
+      EUREKA_HOST: discovery-server
+      MONGODB_URI: mongodb://${MONGO_APP_USER:-goddie9x}:${MONGO_APP_PASSWORD:-change-me-in-prod}@mongo:27017/notification?authSource=notification
+    networks:
+      - social-media-network
+
+  message-service:
+    build:
+      context: ../social_message_service
+    ports:
+      - "3003:3003"
+    depends_on:
+      - mongo
+      - discovery-server
+      - api-gateway
+    environment:
+      INTERNAL_HMAC_SECRET: ${INTERNAL_HMAC_SECRET:-dev-only-change-me}
+      KAFKA_CLIENT_HOST: kafka
+      EUREKA_HOST: discovery-server
+      MONGODB_URI: mongodb://${MONGO_APP_USER:-goddie9x}:${MONGO_APP_PASSWORD:-change-me-in-prod}@mongo:27017/message?authSource=message
+    networks:
+      - social-media-network
+
+  comment-service:
+    build:
+      context: ../social_comment_service
+    ports:
+      - "3006:3006"
+    depends_on:
+      - mongo
+      - discovery-server
+      - api-gateway
+    environment:
+      INTERNAL_HMAC_SECRET: ${INTERNAL_HMAC_SECRET:-dev-only-change-me}
+      KAFKA_CLIENT_HOST: kafka
+      EUREKA_HOST: discovery-server
+      MONGODB_URI: mongodb://${MONGO_APP_USER:-goddie9x}:${MONGO_APP_PASSWORD:-change-me-in-prod}@mongo:27017/comment?authSource=comment
+    networks:
+      - social-media-network
+
+  reaction-service:
+    build:
+      context: ../social_reaction_service
+    ports:
+      - "3007:3007"
+    depends_on:
+      - mongo
+      - discovery-server
+      - api-gateway
+    environment:
+      INTERNAL_HMAC_SECRET: ${INTERNAL_HMAC_SECRET:-dev-only-change-me}
+      KAFKA_CLIENT_HOST: kafka
+      EUREKA_HOST: discovery-server
+      MONGODB_URI: mongodb://${MONGO_APP_USER:-goddie9x}:${MONGO_APP_PASSWORD:-change-me-in-prod}@mongo:27017/reaction?authSource=reaction
+    networks:
+      - social-media-network
+
+  group-service:
+    build:
+      context: ../social_group_service
+    ports:
+      - "3008:3008"
+    depends_on:
+      - mongo
+      - discovery-server
+      - api-gateway
+    environment:
+      INTERNAL_HMAC_SECRET: ${INTERNAL_HMAC_SECRET:-dev-only-change-me}
+      KAFKA_CLIENT_HOST: kafka
+      EUREKA_HOST: discovery-server
+      MONGODB_URI: mongodb://${MONGO_APP_USER:-goddie9x}:${MONGO_APP_PASSWORD:-change-me-in-prod}@mongo:27017/group?authSource=group
+    networks:
+      - social-media-network
+
+  page-service:
+    build:
+      context: ../social_page_service
+    ports:
+      - "3009:3009"
+    depends_on:
+      - mongo
+      - discovery-server
+      - api-gateway
+    environment:
+      INTERNAL_HMAC_SECRET: ${INTERNAL_HMAC_SECRET:-dev-only-change-me}
+      KAFKA_CLIENT_HOST: kafka
+      EUREKA_HOST: discovery-server
+      MONGODB_URI: mongodb://${MONGO_APP_USER:-goddie9x}:${MONGO_APP_PASSWORD:-change-me-in-prod}@mongo:27017/page?authSource=page
+    networks:
+      - social-media-network
+
+  socket-gateway:
+    build:
+      context: ../social_socket_gateway
+    ports:
+      - "3004:3004"
+    depends_on:
+      - mongo
+      - discovery-server
+      - api-gateway
+    environment:
+      PORT: 3004
+      INTERNAL_HMAC_SECRET: ${INTERNAL_HMAC_SECRET:-dev-only-change-me}
+      KAFKA_CLIENT_HOST: kafka
+      EUREKA_HOST: discovery-server
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me}
+      MONGODB_URI: mongodb://${MONGO_APP_USER:-goddie9x}:${MONGO_APP_PASSWORD:-change-me-in-prod}@mongo:27017/socket?authSource=socket
+    networks:
+      - social-media-network
+
+  # Go services
+  post-service:
+    build:
+      context: ../social_post_service
+    ports:
+      - "3005:3005"
     depends_on:
       - oracle
       - discovery-server
       - api-gateway
+    environment:
+      INTERNAL_HMAC_SECRET: ${INTERNAL_HMAC_SECRET:-dev-only-change-me}
+      KAFKA_CLIENT_HOST: kafka
+      EUREKA_HOST: discovery-server
     networks:
       - social-media-network
-  friend-service:
-    image: friend-service
+
+  blob-store-service:
     build:
-      context: ../../friend_service
+      context: ../social_blob_store_service
     ports:
-      - 3001:3001
+      - "3010:6543"
     depends_on:
-      - mongo
+      - postgres
       - discovery-server
       - api-gateway
-    networks:
-      - social-media-network
-  message-service:
-    image: message-service
-    build:
-      context: ../../message_service
-    ports:
-      - 3003:3003
-    depends_on:
-      - mongo
-      - discovery-server
-      - api-gateway
-    networks:
-      - social-media-network
-  notification-service:
-    image: notification-service
-    build:
-      context: ../../notification_service
-    ports:
-      - 3002:3002
-    depends_on:
-      - mongo
-      - discovery-server
-      - api-gateway
-    networks:
-      - social-media-network
-  comment-service:
-    image: comment-service
-    build:
-      context: ../../comment_service
-    ports:
-      - 3006:3006
-    depends_on:
-      - mongo
-      - discovery-server
-      - api-gateway
-    networks:
-      - social-media-network
-  reaction-service:
-    image: reaction-service
-    build:
-      context: ../../reaction_service
-    ports:
-      - 3007:3007
-    depends_on:
-      - mongo
-      - discovery-server
-      - api-gateway
-    networks:
-      - social-media-network
-  page-service:
-    image: page-service
-    build:
-      context: ../../page_service
-    ports:
-      - 3009:3009
-    depends_on:
-      - mongo
-      - discovery-server
-      - api-gateway
-    networks:
-      - social-media-network
-  group-service:
-    image: group-service
-    build:
-      context: ../../group_service
-    ports:
-      - 3008:3008
-    depends_on:
-      - mongo
-      - discovery-server
-      - api-gateway
-    networks:
-      - social-media-network
-  user-service:
-    image: user-service
-    build:
-      context: ../../user_service
-    ports:
-      - 3000:3000
-      - 50051:50051
-    depends_on:
-      - mongo
-      - discovery-server
-      - api-gateway
+    environment:
+      INTERNAL_HMAC_SECRET: ${INTERNAL_HMAC_SECRET:-dev-only-change-me}
+      KAFKA_CLIENT_HOST: kafka
+      EUREKA_HOST: discovery-server
     networks:
       - social-media-network
 
