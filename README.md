@@ -1,6 +1,23 @@
 
 # Utils
 
+Shared utilities for the Social Platform microservices, published as the npm package **`@godsocial/utils`**.
+
+## Install
+
+```bash
+npm install github:goddie9x/social_utils#v1.0.0
+# or, once tagged: npm install @godsocial/utils@1.0.0 (via git URL)
+```
+
+```js
+const { updateObjectIfUpdateFieldDataDefined } = require('@godsocial/utils/objects');
+const { connectToDiscoveryServer } = require('@godsocial/utils/configs/discovery');
+```
+
+> [!NOTE]
+> The old `pull_request_for_multipath.bat` mechanism (manual git-pull into each service's `utils/` folder) was removed in v1.0.0 — use the npm package instead, pinned by git tag.
+
 Utils are which util in our project, especially those utils are using for Social media services which written in `expressjs`
 
 > [!IMPORTANT]
