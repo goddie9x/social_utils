@@ -48,6 +48,7 @@ const getAuthAndPutCurrentUserAuthToBody = (req, res, next) => {
 
     try {
         const currentUser = JSON.parse(currentUserJson);
+        req.body = req.body || {};
         req.body.currentUser = currentUser;
     } catch (e) {
         console.error('Failed to parse X-Current-User header:', e);

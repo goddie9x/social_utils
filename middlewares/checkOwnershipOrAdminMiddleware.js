@@ -8,7 +8,13 @@ const checkOwnershipOrAdmin = (req, res, next) => {
     }
     const currentUser = req.body.currentUser;
 
-    if (id !== currentUser.userId && currentUser.role === ROLES.USER) {
+    // Require authentication - unauthenticated users have no userId
+    if (!currentUser?.userId) {
+        return next(new IncorrectPermission());
+    }
+    // Non-admin users can only act on their own resources.
+    // Unknown (0) is not Admin/Mod, so it falls through to the permission check.
+    if (id !== currentUser.userId && currentUser.role !== ROLES.ADMIN && currentUser.role !== ROLES.MOD) {
         return next(new IncorrectPermission());
     }
     next();
