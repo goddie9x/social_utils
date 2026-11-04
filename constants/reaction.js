@@ -3,6 +3,7 @@ const REACTION = {
         POST: 0,
         COMMENT: 1,
         MESSAGE: 2,
+        VIDEO: 3,
     },
     TYPE: {
         LIKE: 0,
