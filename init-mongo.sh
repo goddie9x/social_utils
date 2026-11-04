@@ -32,7 +32,7 @@ function setupDatabaseAndUser(dbName) {
     }
 }
 
-const databases = ['friend', 'message', 'notification', 'user', 'comment', 'reaction', 'group', 'page'];
+const databases = ['friend', 'message', 'notification', 'user', 'comment', 'reaction', 'group', 'page', 'video'];
 databases.forEach(setupDatabaseAndUser);
 print('MongoDB init completed.');
 EOF

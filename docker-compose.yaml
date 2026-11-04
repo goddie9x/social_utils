@@ -256,6 +256,26 @@ services:
     networks:
       - social-media-network
 
+  video-service:
+    build:
+      context: ../social_video_service
+    ports:
+      - "3011:3011"
+    depends_on:
+      - mongo
+      - discovery-server
+      - api-gateway
+    environment:
+      PORT: 3011
+      INTERNAL_HMAC_SECRET: ${INTERNAL_HMAC_SECRET:-dev-only-change-me}
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me}
+      KAFKA_CLIENT_HOST: kafka
+      EUREKA_HOST: discovery-server
+      FRIEND_SERVICE_URL: http://friend-service:3001
+      MONGODB_URI: mongodb://${MONGO_APP_USER:-goddie9x}:${MONGO_APP_PASSWORD:-change-me-in-prod}@mongo:27017/video?authSource=video
+    networks:
+      - social-media-network
+
   socket-gateway:
     build:
       context: ../social_socket_gateway
